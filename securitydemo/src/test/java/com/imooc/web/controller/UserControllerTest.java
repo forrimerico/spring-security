@@ -17,6 +17,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.xml.ws.WebServiceContext;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -70,5 +73,30 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/a")
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+
+    @Test
+    public void whenCreateSuccess() throws Exception
+    {
+        String content = "{\"username\":\"tom\",\"password\":null}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/user")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(content))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1));
+    }
+
+    @Test
+    public void whenUpdateSuccess() throws Exception
+    {
+        Date date = new Date(LocalDateTime.now()
+                .plusYears(1)
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        String content = "{\"username\":\"tom2\",\"password\":null,\"birthDay\":" + date.getTime() + "}";
+        mockMvc.perform(MockMvcRequestBuilders.put("/user/1")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(content))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1));
     }
 }
